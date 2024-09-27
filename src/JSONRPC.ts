@@ -101,17 +101,17 @@ class JSONRPC {
 	}
 
 	call<Method extends string, Value, Error = undefined, Params = undefined>(
-		args: Params extends undefined
-			? {method: Method}
-			: Params extends any[]
-				? {method: Method; params: Params}
-				: {method: Method; params: [Params]},
-	): Promise<Result<Value, Error>> {
-		if (this.promiseThrottle) {
-			return this.promiseThrottle.add(call.bind(null, this.endpoint, args));
-		} else {
-			return call<Method, Value, Error, Params>(this.endpoint, args);
-		}
+		method: Method,
+	): (
+		params: Params extends undefined ? void : Params extends any[] ? Params : [Params],
+	) => Promise<Result<Value, Error>> {
+		return (params: Params extends undefined ? void : Params extends any[] ? Params : [Params]) => {
+			if (this.promiseThrottle) {
+				return this.promiseThrottle.add(call.bind(null, this.endpoint, {method, params}));
+			} else {
+				return call<Method, Value, Error, Params>(this.endpoint, {method, params} as any);
+			}
+		};
 	}
 }
 
