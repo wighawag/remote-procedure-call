@@ -107,6 +107,17 @@ class JSONRPC {
 	}
 }
 
-export function createJSONRPC<T>(endpoint: string, options?: {requestsPerSecond?: number}): T {
-	return new JSONRPC(endpoint, options) as T;
+export function createJSONRPC<
+	T extends {
+		call<
+			Method extends string,
+			Value,
+			Error = undefined,
+			Params extends any[] | Record<string, any> | undefined = undefined,
+		>(
+			method: Method,
+		): (params: Params extends undefined ? void : Params) => Promise<Result<Value, Error>>;
+	},
+>(endpoint: string, options?: {requestsPerSecond?: number}): T {
+	return new JSONRPC(endpoint, options) as unknown as T;
 }
