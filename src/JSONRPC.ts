@@ -15,16 +15,6 @@ type Result<Value, Error = undefined> = Error extends undefined
 					value: Value;
 			  };
 
-export type RemoteCallType<Method extends string, Value, Error = undefined, Params = undefined> = {
-	call(
-		args: Params extends undefined
-			? {method: Method}
-			: Params extends any[]
-				? {method: Method; params: Params}
-				: {method: Method; params: [Params]},
-	): Promise<Result<Value, Error>>;
-};
-
 export class JSONRPCError extends Error {
 	public readonly isInvalidError = true;
 	constructor(
@@ -36,13 +26,14 @@ export class JSONRPCError extends Error {
 }
 
 let counter = 0;
-export async function call<Method extends string, Value, Error = undefined, Params = undefined>(
+export async function call<
+	Method extends string,
+	Value,
+	Error = undefined,
+	Params extends any[] | Record<string, any> | undefined = undefined,
+>(
 	endpoint: string,
-	req: Params extends undefined
-		? {method: Method}
-		: Params extends any[]
-			? {method: Method; params: Params}
-			: {method: Method; params: [Params]},
+	req: Params extends undefined ? {method: Method} : {method: Method; params: Params},
 ): Promise<Result<Value, Error>> {
 	const params = 'params' in req && req.params;
 	const method = req.method;
@@ -100,12 +91,13 @@ class JSONRPC {
 		}
 	}
 
-	call<Method extends string, Value, Error = undefined, Params = undefined>(
-		method: Method,
-	): (
-		params: Params extends undefined ? void : Params extends any[] ? Params : [Params],
-	) => Promise<Result<Value, Error>> {
-		return (params: Params extends undefined ? void : Params extends any[] ? Params : [Params]) => {
+	call<
+		Method extends string,
+		Value,
+		Error = undefined,
+		Params extends any[] | Record<string, any> | undefined = undefined,
+	>(method: Method): (params: Params extends undefined ? void : Params) => Promise<Result<Value, Error>> {
+		return (params: Params extends undefined ? void : Params) => {
 			if (this.promiseThrottle) {
 				return this.promiseThrottle.add(call.bind(null, this.endpoint, {method, params}));
 			} else {
