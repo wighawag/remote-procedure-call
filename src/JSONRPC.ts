@@ -71,9 +71,6 @@ export async function call<
 		return {success: false, error: json.error as Error} as Result<Value, Error>;
 	}
 
-	if (!json.result) {
-		throw new JSONRPCError('No Error provided but no Result', new Error());
-	}
 	return {success: true, value: json.result} as Result<Value, Error>;
 }
 
