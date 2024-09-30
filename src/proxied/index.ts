@@ -4,9 +4,7 @@ import {call} from '../common';
 
 export function createJSONRPC<
 	T extends {
-		[method: string]: <Value, Error = undefined, Params extends any[] | Record<string, any> | undefined = undefined>(
-			params: Params extends undefined ? void : Params,
-		) => Promise<Result<Value, Error>>;
+		[method: string]: (params: undefined | any) => Promise<Result<any | undefined, any | undefined>>;
 	},
 >(endpoint: string, options?: {requestsPerSecond?: number}): T {
 	const promiseThrottle =
