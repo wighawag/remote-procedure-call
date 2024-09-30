@@ -1,7 +1,7 @@
 import PromiseThrottle from 'promise-throttle';
-import type {Result, RPCMethods} from '../types.js';
-import {call} from '../common/index.js';
-import type {CurriedRPC} from './types.js';
+import {Result, RPCMethods} from '../types';
+import {call} from '../common';
+import {CurriedRPC} from './types';
 
 class JSONRPC {
 	private promiseThrottle: PromiseThrottle | undefined;
@@ -21,16 +21,14 @@ class JSONRPC {
 		Method extends string,
 		Value,
 		Error = undefined,
-		Params extends unknown[] | Record<string, unknown> | undefined = undefined,
-		// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+		Params extends any[] | Record<string, any> | undefined = undefined,
 	>(method: Method): (params: Params extends undefined ? void : Params) => Promise<Result<Value, Error>> {
-		// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
 		return (params: Params extends undefined ? void : Params) => {
 			if (this.promiseThrottle) {
 				return this.promiseThrottle.add(call.bind(null, this.endpoint, {method, params}));
+			} else {
+				return call<Method, Value, Error, Params>(this.endpoint, {method, params} as any);
 			}
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			return call<Method, Value, Error, Params>(this.endpoint, {method, params} as any);
 		};
 	}
 
@@ -38,8 +36,7 @@ class JSONRPC {
 		Method extends string,
 		Value,
 		Error = undefined,
-		Params extends unknown[] | Record<string, unknown> | undefined = undefined,
-		// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+		Params extends any[] | Record<string, any> | undefined = undefined,
 	>(method: Method): (params: Params extends undefined ? void : Params) => Promise<Result<Value, Error>> {
 		return this.call(method);
 	}

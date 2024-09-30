@@ -1,5 +1,4 @@
-import {JSONRPCError} from '../errors.js';
-import type {Result} from '../types.js';
+import {JSONRPCError, Result} from '../types';
 
 let counter = 0;
 
@@ -24,7 +23,7 @@ export async function call<
 	Method extends string,
 	Value,
 	Error = undefined,
-	Params extends unknown[] | Record<string, unknown> | undefined = undefined,
+	Params extends any[] | Record<string, any> | undefined = undefined,
 >(
 	endpoint: string,
 	req: Params extends undefined ? {method: Method} : {method: Method; params: Params},
@@ -45,20 +44,20 @@ export async function call<
 			}),
 		});
 	} catch (fetchError) {
-		throw new JSONRPCError(`Failed To Fetch at ${endpoint} (method: ${method})`, fetchError as globalThis.Error);
+		throw new JSONRPCError(`Failed To Fetch at ${endpoint} (method: ${method})`, fetchError);
 	}
 
-	if (response.status !== 200) {
+	if (response.status != 200) {
 		throw new JSONRPCError(
 			`Failed To Fetch (status = ${response.status}) at ${endpoint} (method: ${method})`,
 			new Error(`status: ${response.status}`),
 		);
 	}
-	let json: {result?: Value; error?: unknown};
+	let json: {result?: Value; error?: any};
 	try {
 		json = await response.json();
 	} catch (parsingError) {
-		throw new JSONRPCError('Failed To parse response json', parsingError as globalThis.Error);
+		throw new JSONRPCError('Failed To parse response json', parsingError);
 	}
 
 	if (json.error) {
