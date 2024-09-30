@@ -59,6 +59,7 @@
 		"prepare": "set-defaults .vscode",
 		"build": "pkgroll",
 		"dev": "pkgroll --watch",
+		"test": "vitest",
 		"format:check": "prettier --check .",
 		"format": "prettier --write ."
 	}
