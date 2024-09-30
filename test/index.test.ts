@@ -2,7 +2,7 @@ import {test} from 'vitest';
 import {createCurriedJSONRPC} from '../src';
 import {createProxiedJSONRPC} from '../src';
 
-test('curried', async function () {
+test('curried', async () => {
 	const jsonrpc = createCurriedJSONRPC<{
 		eth_getBlockByNumber: {
 			params: [number, boolean];
@@ -20,7 +20,7 @@ test('curried', async function () {
 	// Call a remote method with parameters
 	const blockResponse = await jsonrpc.call('eth_getBlockByNumber')([1, false]);
 	if (blockResponse.success) {
-		console.log(`hash: ${blockResponse.value.hash}`);
+		console.log(`hash: ${blockResponse.value?.hash}`);
 	}
 
 	// Call a remote method without parameters
@@ -30,7 +30,7 @@ test('curried', async function () {
 	}
 });
 
-test('proxied', async function () {
+test('proxied', async () => {
 	const jsonrpc = createProxiedJSONRPC<{
 		eth_getBlockByNumber: {
 			params: [number, boolean];
@@ -48,7 +48,7 @@ test('proxied', async function () {
 	// Call a remote method with parameters
 	const blockResponse = await jsonrpc.eth_getBlockByNumber([1, false]);
 	if (blockResponse.success) {
-		console.log(`hash: ${blockResponse.value.hash}`);
+		console.log(`hash: ${blockResponse.value?.hash}`);
 	}
 
 	// Call a remote method without parameters

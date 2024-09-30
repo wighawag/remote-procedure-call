@@ -1,6 +1,7 @@
-import {RPCErrors} from './errors.js';
+import type {RPCErrors} from './errors.js';
 
-export type RPCRequestData = {params?: any; result?: any; errors?: any};
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export type RPCRequestData = {params?: any; result?: unknown; errors?: unknown};
 
 export type RPCMethods = Record<string, RPCRequestData>;
 
@@ -28,35 +29,6 @@ export type Result<Value, Error = undefined> = Error extends undefined
 					value: Value;
 			  };
 
-/**
- * A custom error class representing an invalid JSON-RPC error.
- * @extends Error
- */
-export class JSONRPCError extends Error {
-	/**
-	 * A boolean flag indicating whether the error is an invalid error.
-	 * This indicate that it is not possible to assume the call has proceeded correctly
-	 * @readonly
-	 */
-	public readonly isInvalidError = true;
-
-	/**
-	 * The underlying cause of the error.
-	 * @readonly
-	 */
-	public readonly cause: Error;
-
-	/**
-	 * Creates a new instance of the `JSONRPCError` class.
-	 * @param message - The error message.
-	 * @param cause - The underlying cause of the error.
-	 */
-	constructor(message: string, cause: Error) {
-		super(message);
-		this.cause = cause;
-	}
-}
-
 // taken from https://dev.to/bwca/deep-readonly-generic-in-typescript-4b04
 export type DeepReadonly<T> = Readonly<{
 	[K in keyof T]: T[K] extends number | string | symbol // Is it a primitive? Then make it readonly
@@ -72,7 +44,7 @@ export type CurriedRemoteCallType<
 	Method extends string,
 	Value,
 	Error = undefined,
-	Params extends any[] | Record<string, any> | undefined = undefined,
+	Params extends unknown[] | Record<string, unknown> | undefined = undefined,
 > = (Params extends undefined
 	? {
 			call: (method: Method) => () => Promise<Result<Value, Error | RPCErrors>>;
@@ -90,7 +62,7 @@ export type CurriedRemoteCallType<
 export type ProxiedRemoteCallType<
 	Value,
 	Error = undefined,
-	Params extends any[] | Record<string, any> | undefined = undefined,
+	Params extends unknown[] | Record<string, unknown> | undefined = undefined,
 > = Params extends undefined
 	? () => Promise<Result<Value, Error | RPCErrors>>
 	: Params extends []
