@@ -1,12 +1,21 @@
 import PromiseThrottle from 'promise-throttle';
-import {Result} from '../types';
+import {Result, RPCMethods} from '../types';
 import {call} from '../common';
+import {ProxiedRPC} from './types';
 
-export function createJSONRPC<
-	T extends {
-		[method: string]: (params: undefined | any) => Promise<Result<any | undefined, any | undefined>>;
-	},
->(endpoint: string, options?: {requestsPerSecond?: number}): T {
+/**
+ * Creates a JSON-RPC proxy object that allows calling remote methods on the specified endpoint.
+ *
+ * @template Methods - The type representing the available JSON-RPC methods.
+ * @param {string} endpoint - The URL of the JSON-RPC endpoint.
+ * @param {Object} [options] - An optional object with additional options.
+ * @param {number} [options.requestsPerSecond] - The maximum number of requests per second.
+ * @returns {T} A proxy object that allows calling remote methods on the specified endpoint.
+ */
+export function createJSONRPC<T extends RPCMethods>(
+	endpoint: string,
+	options?: {requestsPerSecond?: number},
+): ProxiedRPC<T> {
 	const promiseThrottle =
 		options?.requestsPerSecond != undefined
 			? new PromiseThrottle({
@@ -15,7 +24,7 @@ export function createJSONRPC<
 				})
 			: null;
 	const handler = {
-		get(target, prop, receiver) {
+		get(_target: {}, prop: string, _receiver: {}) {
 			const method = prop;
 			return <
 				Method extends string,
@@ -33,5 +42,5 @@ export function createJSONRPC<
 			};
 		},
 	};
-	return new Proxy({}, handler) as unknown as T;
+	return new Proxy({}, handler) as unknown as ProxiedRPC<T>;
 }

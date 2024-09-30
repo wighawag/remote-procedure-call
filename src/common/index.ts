@@ -1,6 +1,24 @@
 import {JSONRPCError, Result} from '../types';
 
 let counter = 0;
+
+/**
+ * Sends a JSON-RPC request to the specified endpoint and returns a Promise that resolves with the result.
+ *
+ * @template Method - The method name of the JSON-RPC request.
+ * @template Value - The expected type of the result value.
+ * @template Error - The expected type of the error object (optional, defaults to `undefined`).
+ * @template Params - The type of the parameters object (optional, defaults to `undefined`).
+ *
+ * @param {string} endpoint - The URL of the JSON-RPC endpoint.
+ * @param {Object} req - The request object, containing the method name and optional parameters.
+ * @param {Method} req.method - The method name of the JSON-RPC request.
+ * @param {Params} [req.params] - The parameters for the JSON-RPC request (optional).
+ *
+ * @returns {Promise<Result<Value, Error>>} A Promise that resolves with a `Result` object containing the result value or error.
+ *
+ * @throws {JSONRPCError} If there is an error fetching or parsing the response.
+ */
 export async function call<
 	Method extends string,
 	Value,
