@@ -87,6 +87,23 @@ export type CurriedRemoteCallType<
 	callUnknown: <T extends RPCMethods>(method: keyof T) => () => Promise<Result<T['result'], T['errors'] | RPCErrors>>;
 };
 
+export type RemoteRequestCallType<
+	Method extends string,
+	Value,
+	Error = undefined,
+	Params extends any[] | Record<string, any> | undefined = undefined,
+> = Params extends undefined
+	? {
+			request: (req: {method: Method}) => Promise<Result<Value, Error | RPCErrors>>;
+		}
+	: Params extends []
+		? {
+				request: (req: {method: Method}) => Promise<Result<Value, Error | RPCErrors>>;
+			}
+		: {
+				request: (req: {method: Method; params: DeepReadonly<Params>}) => Promise<Result<Value, Error | RPCErrors>>;
+			};
+
 export type ProxiedRemoteCallType<
 	Value,
 	Error = undefined,

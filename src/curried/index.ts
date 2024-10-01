@@ -1,12 +1,12 @@
 import PromiseThrottle from 'promise-throttle';
 import {Result, RPCMethods} from '../types';
 import {call} from '../common';
-import {CurriedRPC} from './types';
+import {CurriedRPC, RequestRPC} from './types';
 
 class JSONRPC {
 	private promiseThrottle: PromiseThrottle | undefined;
 	constructor(
-		protected endpoint: string,
+		protected endpoint: string | RequestRPC<any>,
 		options?: {requestsPerSecond?: number},
 	) {
 		if (options?.requestsPerSecond) {
@@ -40,6 +40,17 @@ class JSONRPC {
 	>(method: Method): (params: Params extends undefined ? void : Params) => Promise<Result<Value, Error>> {
 		return this.call(method);
 	}
+
+	request<
+		Method extends string,
+		Value,
+		Error = undefined,
+		Params extends any[] | Record<string, any> | undefined = undefined,
+	>(
+		req: Params extends undefined ? {method: Method} : {method: Method; params: Params},
+	): Promise<Result<Value, Error>> {
+		return this.call(req.method)((req as any).params) as Promise<Result<Value, Error>>;
+	}
 }
 /**
  * Creates a JSON-RPC client instance with optional rate limiting.
@@ -51,8 +62,8 @@ class JSONRPC {
  * @returns {CurriedRPC<Methods>} The JSON-RPC client instance.
  */
 export function createJSONRPC<Methods extends RPCMethods>(
-	endpoint: string,
+	endpoint: string | RequestRPC<Methods>,
 	options?: {requestsPerSecond?: number},
-): CurriedRPC<Methods> {
-	return new JSONRPC(endpoint, options) as unknown as CurriedRPC<Methods>;
+): CurriedRPC<Methods> & RequestRPC<Methods> {
+	return new JSONRPC(endpoint as any, options) as unknown as CurriedRPC<Methods> & RequestRPC<Methods>;
 }
