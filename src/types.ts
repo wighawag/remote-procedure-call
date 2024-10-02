@@ -90,18 +90,17 @@ export type CurriedRemoteCallType<
 export type RemoteRequestCallType<
 	Method extends string,
 	Value,
-	Error = undefined,
 	Params extends any[] | Record<string, any> | undefined = undefined,
 > = Params extends undefined
 	? {
-			request: (req: {method: Method}) => Promise<Result<Value, Error | RPCErrors>>;
+			request: (req: {method: Method}) => Promise<Value>;
 		}
 	: Params extends []
 		? {
-				request: (req: {method: Method}) => Promise<Result<Value, Error | RPCErrors>>;
+				request: (req: {method: Method}) => Promise<Value>;
 			}
 		: {
-				request: (req: {method: Method; params: DeepReadonly<Params>}) => Promise<Result<Value, Error | RPCErrors>>;
+				request: (req: {method: Method; params: DeepReadonly<Params>}) => Promise<Value>;
 			};
 
 export type ProxiedRemoteCallType<
