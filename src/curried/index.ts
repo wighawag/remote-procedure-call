@@ -41,15 +41,18 @@ class JSONRPC {
 		return this.call(method);
 	}
 
-	request<
+	async request<
 		Method extends string,
 		Value,
 		Error = undefined,
 		Params extends any[] | Record<string, any> | undefined = undefined,
-	>(
-		req: Params extends undefined ? {method: Method} : {method: Method; params: Params},
-	): Promise<Result<Value, Error>> {
-		return this.call(req.method)((req as any).params) as Promise<Result<Value, Error>>;
+	>(req: Params extends undefined ? {method: Method} : {method: Method; params: Params}): Promise<Value> {
+		const result = await this.call<Method, Value, Error, Params>(req.method)((req as any).params);
+		if (result.success === true) {
+			return result.value;
+		} else {
+			throw result.error;
+		}
 	}
 }
 /**
