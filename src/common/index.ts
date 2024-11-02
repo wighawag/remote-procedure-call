@@ -68,6 +68,11 @@ export async function call<
 
 		return {success: true, value: json.result} as Result<Value, Error>;
 	} else {
-		return endpoint.request({method, params: params as any}) as Promise<Result<Value, Error>>;
+		try {
+			const value = await endpoint.request({method, params: params as any});
+			return {success: true, value: value as Value} as Result<Value, Error>;
+		} catch (err) {
+			return {success: false, error: err as Error} as Result<Value, Error>;
+		}
 	}
 }
