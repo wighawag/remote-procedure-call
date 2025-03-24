@@ -42,7 +42,7 @@ export async function call<
 					id: ++counter,
 					jsonrpc: '2.0',
 					method,
-					params,
+					params: params || [],
 				}),
 			});
 		} catch (fetchError) {
@@ -69,7 +69,7 @@ export async function call<
 		return {success: true, value: json.result} as Result<Value, Error>;
 	} else {
 		try {
-			const value = await endpoint.request({method, params: params as any});
+			const value = await endpoint.request({method, params: (params || []) as any});
 			return {success: true, value: value as Value} as Result<Value, Error>;
 		} catch (err) {
 			return {success: false, error: err as Error} as Result<Value, Error>;
