@@ -15,7 +15,7 @@ import {CurriedRPC, RequestRPC} from './types';
 export function createJSONRPC<Methods extends RPCMethods>(
 	endpoint: string | RequestRPC<Methods>,
 	options?: {requestsPerSecond?: number},
-): CurriedRPC<Methods> & RequestRPC<Methods> {
+): CurriedRPC<Methods> {
 	let promiseThrottle: PromiseThrottle | undefined;
 	if (options?.requestsPerSecond) {
 		promiseThrottle = new PromiseThrottle({
