@@ -135,6 +135,8 @@ const rpc = createCurriedJSONRPC<MyMethods>(url);
 const block = await rpc.request({method: 'eth_getBlockByNumber', params: ['latest', true]}); // BlockWithTransactions | null
 ```
 
+A flag typed `boolean` matches neither overload (TypeScript does not spread a union argument across overloads): branch on it, `flag ? rpc.call('eth_getBlockByNumber')([tag, true]) : rpc.call('eth_getBlockByNumber')([tag, false])`.
+
 There is no catch-all `request` overload: a typo or wrong parameters are reported against the method you called. To call a method outside the table, extend the table, or use `callUnknown`.
 
 ### Using an eip-1193 method table

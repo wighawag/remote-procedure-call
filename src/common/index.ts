@@ -1,5 +1,4 @@
-import {RequestEndpoint} from '../curried/types';
-import {JSONRPCError, Result} from '../types';
+import {JSONRPCError, RequestEndpoint, Result} from '../types';
 
 let counter = 0;
 

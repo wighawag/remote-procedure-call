@@ -10,8 +10,9 @@ name: release
 # Auth is npm Trusted Publishing (OIDC): NO NPM_TOKEN secret. npm trusts this
 # repo + workflow (release.yml) via the trusted publisher registered on the
 # package's npmjs.com settings. The OIDC handshake needs `id-token: write`,
-# Node >= 22 (npm CLI >= 11.5.1), and pnpm 10.x; publishes are stamped with
-# provenance.
+# Node >= 22 (npm CLI >= 11.5.1); publishes are stamped with provenance. pnpm
+# is the version in package.json's packageManager (11), the same as
+# jolly-roger-eth/eip-1193, which publishes through this same OIDC setup.
 #
 # One-time setup: remote-procedure-call already exists on npm (versions up to
 # 0.1.2 were published by hand) and has a trusted publisher entry on npmjs.com

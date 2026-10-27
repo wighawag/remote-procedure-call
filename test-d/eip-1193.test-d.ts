@@ -15,7 +15,13 @@ import type {
 	Methods,
 	NodeMethods,
 } from 'eip-1193';
-import {createCurriedJSONRPC, createProxiedJSONRPC, type CurriedRPC, type ProxiedRPC} from '../src/index.js';
+import {
+	createCurriedJSONRPC,
+	createProxiedJSONRPC,
+	type CurriedRPC,
+	type ProxiedRPC,
+	type RPCErrors,
+} from '../src/index.js';
 
 type Expect<T extends true> = T;
 type Equal<A, B> = (<G>() => G extends A ? 1 : 2) extends <G>() => G extends B ? 1 : 2 ? true : false;
@@ -65,6 +71,10 @@ export async function narrowing() {
 	await wallet.request({method: 'eth_blockNumbr'});
 	// @ts-expect-error wrong params
 	await wallet.request({method: 'eth_getBalance', params: [42]});
+	// @ts-expect-error a typo through call
+	wallet.call('eth_blockNumbr');
+	// @ts-expect-error params given to a method that takes none
+	await wallet.call('eth_chainId')(['x']);
 
 	// F. calling outside the table goes through callUnknown
 	await wallet.callUnknown<{params: [string]; result: boolean}>('my_method')(['x']);
@@ -78,4 +88,29 @@ export async function proxiedNarrowing() {
 		type _G1 = Expect<Equal<typeof full.value, EIP1193BlockWithTransactions | null>>;
 	}
 	return createProxiedJSONRPC<Methods>('http://localhost:8545');
+}
+
+// H. tables that do not come from eip-1193: record params, errors, result-only entries
+type Api = {
+	getValue: {params: {id: string}; result: string; errors: {code: 1; message: string} | {code: 2; message: string}};
+	pair: {params: [number, string]; result: boolean};
+	specVersion: {result: string};
+};
+declare const api: CurriedRPC<Api>;
+export async function plainTable() {
+	const value = await api.call('getValue')({id: 'x'});
+	if (value.success) {
+		type _H1 = Expect<Equal<typeof value.value, string>>;
+	} else {
+		type _H2 = Expect<Equal<typeof value.error, {code: 1; message: string} | {code: 2; message: string} | RPCErrors>>;
+	}
+	await api.call('pair')([1, 'a']);
+	const version = await api.call('specVersion')();
+	if (version.success) {
+		type _H3 = Expect<Equal<typeof version.value, string>>;
+	}
+	const viaRequest: string = await api.request({method: 'getValue', params: {id: 'x'}});
+	// @ts-expect-error missing params
+	await api.call('getValue')();
+	return viaRequest;
 }

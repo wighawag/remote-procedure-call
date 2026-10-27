@@ -1,4 +1,4 @@
-import {CurriedRemoteCallType, RemoteRequestCallType, RPCMethods, RPCRequestData} from '../types';
+import {CurriedRemoteCallType, RemoteRequestCallType, RequestEndpoint, RPCMethods, RPCRequestData} from '../types';
 
 /**
  * One `call` per method. A method whose entry is a UNION (one entry per parameter shape) gets
@@ -55,11 +55,4 @@ export type RequestRPC<T extends RPCMethods> = UnionToIntersection<RequestUnion<
 
 export type CurriedRPC<T extends RPCMethods> = OnlyCurriedRPC<T> & RequestRPC<T>;
 
-/**
- * What a client can be created over, besides a URL: anything with an async `request`, which is the
- * only thing ever called on it. Method syntax, so any typed EIP-1193-style provider fits, whatever
- * method table it is typed with.
- */
-export type RequestEndpoint = {
-	request(args: {method: string; params?: any}): Promise<any>;
-};
+export type {RequestEndpoint};

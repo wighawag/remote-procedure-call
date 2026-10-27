@@ -5,6 +5,15 @@ export type RPCRequestData = {params?: any; result?: any; errors?: any};
 export type RPCMethods = Record<string, RPCRequestData>;
 
 /**
+ * What a client can be created over, besides a URL: anything with an async `request`, which is the
+ * only thing ever called on it. Method syntax, so any typed EIP-1193-style provider fits, whatever
+ * method table it is typed with.
+ */
+export type RequestEndpoint = {
+	request(args: {method: string; params?: any}): Promise<any>;
+};
+
+/**
  * A union type representing the result of an operation.
  * If the `Error` type parameter is `undefined`, the `Result` type is an object with a `success` property set to `true` and a `value` property of type `Value`.
  * If the `Error` type parameter is not `undefined`, the `Result` type is a union of two object types:
