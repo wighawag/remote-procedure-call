@@ -1,6 +1,25 @@
 {
 	"name": "remote-procedure-call",
 	"version": "0.1.2",
+	"description": "Typed JSON-RPC clients (curried or proxied) over a URL or any EIP-1193 style provider, from a method table type, with optional rate limiting",
+	"keywords": [
+		"json-rpc",
+		"rpc",
+		"typescript",
+		"eip-1193",
+		"ethereum",
+		"typed"
+	],
+	"author": "Ronan Sandford",
+	"license": "MIT",
+	"homepage": "https://github.com/wighawag/remote-procedure-call#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/wighawag/remote-procedure-call.git"
+	},
+	"bugs": {
+		"url": "https://github.com/wighawag/remote-procedure-call/issues"
+	},
 	"publishConfig": {
 		"access": "public"
 	},
@@ -45,11 +64,13 @@
 		"src"
 	],
 	"devDependencies": {
+		"eip-1193": "^0.7.4",
 		"pkgroll": "^2.0.2",
 		"prettier": "^3.2.5",
 		"set-defaults": "^0.0.2",
 		"typescript": "^5.4.5",
-		"vitest": "^4.1.2"
+		"vitest": "^4.1.2",
+		"@changesets/cli": "^2.29.8"
 	},
 	"dependencies": {
 		"named-logs": "^0.2.2",
@@ -59,8 +80,14 @@
 		"prepare": "set-defaults .vscode",
 		"build": "pkgroll",
 		"dev": "pkgroll --watch",
-		"test": "vitest",
+		"test": "pnpm test:types && vitest run --exclude test/index.test.ts",
 		"format:check": "prettier --check .",
-		"format": "prettier --write ."
-	}
+		"format": "prettier --write .",
+		"test:types": "tsc -p test-d/tsconfig.json",
+		"test:network": "vitest run test/index.test.ts",
+		"check:type-deps": "node scripts/check-type-deps.mjs .",
+		"prepublishOnly": "pnpm format:check && pnpm build && pnpm check:type-deps",
+		"release:ci": "pnpm test && pnpm prepublishOnly && changeset publish"
+	},
+	"packageManager": "pnpm@11.25.0"
 }

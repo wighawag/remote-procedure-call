@@ -1,19 +1,20 @@
 import PromiseThrottle from 'promise-throttle';
 import {Result, RPCMethods} from '../types';
 import {call as rpcCall} from '../common';
-import {CurriedRPC, RequestRPC} from './types';
+import {CurriedRPC, RequestEndpoint} from './types';
 
 /**
  * Creates a JSON-RPC client instance with optional rate limiting.
  *
  * @template Methods - The type representing the available JSON-RPC methods.
- * @param {string} endpoint - The URL of the JSON-RPC server.
+ * @param endpoint - The URL of the JSON-RPC server, or any object with an async `request` (an EIP-1193
+ * provider, for example), which is then called for every request.
  * @param {Object} [options] - Optional configuration options.
  * @param {number} [options.requestsPerSecond] - The maximum number of requests per second. If provided, rate limiting will be enabled.
  * @returns {CurriedRPC<Methods>} The JSON-RPC client instance.
  */
 export function createJSONRPC<Methods extends RPCMethods>(
-	endpoint: string | RequestRPC<Methods>,
+	endpoint: string | RequestEndpoint,
 	options?: {requestsPerSecond?: number},
 ): CurriedRPC<Methods> {
 	let promiseThrottle: PromiseThrottle | undefined;
@@ -32,7 +33,7 @@ export function createJSONRPC<Methods extends RPCMethods>(
 	>(method: Method): (params: Params extends undefined ? void : Params) => Promise<Result<Value, Error>> {
 		return (params: Params extends undefined ? void : Params) => {
 			if (promiseThrottle) {
-				return promiseThrottle.add(rpcCall.bind(null, endpoint, {method, params}));
+				return promiseThrottle.add(() => rpcCall<Method, Value, Error, Params>(endpoint, {method, params} as any));
 			} else {
 				return rpcCall<Method, Value, Error, Params>(endpoint, {method, params} as any);
 			}
@@ -62,7 +63,7 @@ export function createJSONRPC<Methods extends RPCMethods>(
 		}
 	}
 
-	return {call, callUnknown, request} as unknown as CurriedRPC<Methods> & RequestRPC<Methods>;
+	return {call, callUnknown, request} as unknown as CurriedRPC<Methods>;
 }
 
 async function typeTesting() {

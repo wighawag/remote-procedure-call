@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"useUnknownInCatchVariables": false,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ES2022", "DOM"],
+		"noUnusedLocals": false
+	},
+	"include": ["../src/**/*.ts", "./**/*.ts"]
+}

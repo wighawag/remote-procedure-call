@@ -120,6 +120,39 @@ if (chainIdResponse.success) {
 }
 ```
 
+### Methods with several parameter shapes
+
+A method's entry may be a UNION, one entry per parameter shape. Each entry becomes its own overload, so the result narrows with the parameters, for `request`, for `call` and for the proxied client alike:
+
+```ts
+type MyMethods = {
+	eth_getBlockByNumber:
+		| {params: [string, false?]; result: Block | null}
+		| {params: [string, true]; result: BlockWithTransactions | null};
+};
+
+const rpc = createCurriedJSONRPC<MyMethods>(url);
+const block = await rpc.request({method: 'eth_getBlockByNumber', params: ['latest', true]}); // BlockWithTransactions | null
+```
+
+There is no catch-all `request` overload: a typo or wrong parameters are reported against the method you called. To call a method outside the table, extend the table, or use `callUnknown`.
+
+### Using an eip-1193 method table
+
+The request typing is the same machinery as [`eip-1193`](https://github.com/jolly-roger-eth/eip-1193) (0.7 and later), so a client typed with one of its tables is assignable to the matching provider type, and can be passed wherever a library asks for one:
+
+```ts
+import type {Methods, EIP1193WalletProvider, EIP1193CoreProvider} from 'eip-1193';
+
+const rpc = createCurriedJSONRPC<Methods>(window.ethereum);
+const asWallet: EIP1193WalletProvider = rpc;
+const asCore: EIP1193CoreProvider = rpc;
+```
+
+### Over a provider instead of a URL
+
+`createCurriedJSONRPC` also takes any object with an async `request({method, params})`, an EIP-1193 provider for example, whatever method table it is typed with. Every request is forwarded to it.
+
 ### Error Handling
 
 Both approaches return a response object with a `success` property indicating whether the call was successful or not. If `success` is `false
@@ -129,7 +162,7 @@ Both approaches return a response object with a `success` property indicating wh
 Both `createCurriedJSONRPC` and `createProxiedJSONRPC` accept an optional `options` object with a `requestsPerSecond` property to enable rate limiting.
 
 ```typescript
-import {createCurriedJSONRPC} from 'remote-rpocedure-call';
+import {createCurriedJSONRPC} from 'remote-procedure-call';
 
 const jsonrpc = createCurriedJSONRPC<{
 	getValue: {
