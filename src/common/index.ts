@@ -1,5 +1,4 @@
-import {RequestRPC} from '../curried/types';
-import {JSONRPCError, Result} from '../types';
+import {JSONRPCError, RequestEndpoint, Result} from '../types';
 
 let counter = 0;
 
@@ -26,7 +25,7 @@ export async function call<
 	Error = undefined,
 	Params extends any[] | Record<string, any> | undefined = undefined,
 >(
-	endpoint: string | RequestRPC<any>,
+	endpoint: string | RequestEndpoint,
 	req: Params extends undefined ? {method: Method} : {method: Method; params: Params},
 ): Promise<Result<Value, Error>> {
 	const params = 'params' in req && req.params;
@@ -69,7 +68,7 @@ export async function call<
 		return {success: true, value: json.result} as Result<Value, Error>;
 	} else {
 		try {
-			const value = await endpoint.request({method, params: (params || []) as any});
+			const value = await endpoint.request({method, params: params || []});
 			return {success: true, value: value as Value} as Result<Value, Error>;
 		} catch (err) {
 			return {success: false, error: err as Error} as Result<Value, Error>;
