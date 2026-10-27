@@ -1,6 +1,6 @@
 {
 	"name": "remote-procedure-call",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "Typed JSON-RPC clients (curried or proxied) over a URL or any EIP-1193 style provider, from a method table type, with optional rate limiting",
 	"keywords": [
 		"json-rpc",
